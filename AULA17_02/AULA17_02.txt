@@ -1,0 +1,169 @@
+CREATE TABLE pais (
+    cod_pais NUMERIC PRIMARY KEY,
+    nome_pais VARCHAR2(30)
+)
+
+ALTER TABLE pais MODIFY
+    nome_pais VARCHAR(30) NOT NULL;
+
+CREATE TABLE estado (
+    cod_estado NUMERIC PRIMARY KEY,
+    nome_estado VARCHAR2(30),
+    cod_pais NUMERIC
+)
+
+ALTER TABLE estado MODIFY
+    nome_estado VARCHAR2(30) NOT NULL;
+
+ALTER TABLE estado
+    ADD CONSTRAINT fk_estado FOREIGN KEY ( cod_pais )
+        REFERENCES pais ( cod_pais );
+        
+CREATE TABLE cidade (
+    cod_cidade  NUMERIC PRIMARY KEY,
+    nome_cidade VARCHAR2(30),
+    cod_estado  NUMERIC
+)
+
+ALTER TABLE cidade MODIFY
+    nome_cidade VARCHAR2(30) NOT NULL;
+
+ALTER TABLE cidade
+    ADD CONSTRAINT fk_cidade FOREIGN KEY ( cod_estado )
+        REFERENCES estado ( cod_estado );
+        
+CREATE TABLE bairro (
+    cod_bairro NUMERIC PRIMARY KEY,
+    nome_bairro VARCHAR2(30) NOT NULL,
+    cod_cidade NUMERIC
+)
+
+ALTER TABLE bairro
+    ADD CONSTRAINT fk_bairro FOREIGN KEY ( cod_cidade )
+        REFERENCES cidade ( cod_cidade );
+        
+CREATE TABLE endereco_cliente (
+    cod_endereco NUMERIC PRIMARY KEY,
+    numero NUMERIC,
+    cep NUMERIC,
+    referencia VARCHAR2(30),
+    logradouro VARCHAR2(30),
+    cod_bairro NUMERIC,
+    cod_cliente NUMERIC
+)
+
+ALTER TABLE endereco_cliente
+    ADD CONSTRAINT fk_endereco FOREIGN KEY ( cod_bairro )
+        REFERENCES bairro ( cod_bairro );
+        
+ALTER TABLE endereco_cliente
+    ADD CONSTRAINT fk_cliente FOREIGN KEY ( cod_cliente )
+        REFERENCES cliente ( cod_cliente );
+        
+ALTER TABLE endereco_cliente MODIFY
+    logradouro VARCHAR2(30) NOT NULL;
+        
+CREATE TABLE cliente (
+    cod_cliente NUMERIC PRIMARY KEY,
+    nome VARCHAR2(30) NOT NULL
+)
+
+ALTER TABLE cliente
+    ADD CONSTRAINT fkDD_endereco FOREIGN KEY ( cod_cliente )
+        REFERENCES endereco_cliente ( cod_endereco );
+        
+CREATE TABLE cliente_jurica (
+    cod_pessoa_ju NUMERIC PRIMARY KEY,
+    cnpj          NUMERIC,
+    ie            NUMERIC,
+    cod_cliente   NUMERIC,
+    FOREIGN KEY ( cod_cliente )
+        REFERENCES cliente ( cod_cliente )
+)
+
+CREATE TABLE genero (
+    cod_genero NUMERIC PRIMARY KEY,
+    descricao VARCHAR2(30) NOT NULL
+)
+
+CREATE TABLE cliente_fisico (
+    cod_cliente_fisico NUMERIC PRIMARY KEY,
+    cpf                NUMERIC,
+    cod_cliente        NUMERIC,
+    cod_genero         NUMERIC,
+    FOREIGN KEY ( cod_cliente )
+        REFERENCES cliente ( cod_cliente ),
+    FOREIGN KEY ( cod_genero )
+        REFERENCES genero ( cod_genero )
+)
+
+CREATE TABLE cargo (
+    cod_cargo NUMERIC,
+    nome VARCHAR2(30) NOT NULL
+)
+
+ALTER TABLE cargo ADD PRIMARY KEY ( cod_cargo );
+
+CREATE TABLE funcionario (
+    cod_funcionario NUMERIC PRIMARY KEY,
+    nome            VARCHAR2(30) NOT NULL,
+    data_cadastro   DATE,
+    cod_cargo       NUMERIC,
+    cod_gestor      NUMERIC
+)
+
+ALTER TABLE funcionario
+    ADD CONSTRAINT fk_cargo FOREIGN KEY ( cod_cargo )
+        REFERENCES cargo ( cod_cargo );
+        
+ALTER TABLE funcionario
+    ADD CONSTRAINT fk_gestor FOREIGN KEY ( cod_gestor )
+        REFERENCES funcionario ( cod_funcionario );
+        
+CREATE TABLE pedido (
+    cod_pedido         NUMERIC PRIMARY KEY,
+    data               DATE,
+    cod_cliente_fisico NUMERIC,
+    cod_cliente        NUMERIC,
+    cod_genero         NUMERIC,
+    cod_funcionario    NUMERIC,
+    cod_pessoa_ju      NUMERIC,
+    FOREIGN KEY ( cod_cliente_fisico )
+        REFERENCES cliente_fisico ( cod_cliente_fisico ),
+    FOREIGN KEY ( cod_cliente )
+        REFERENCES cliente ( cod_cliente ),
+    FOREIGN KEY ( cod_genero )
+        REFERENCES genero ( cod_genero ),
+    FOREIGN KEY ( cod_funcionario )
+        REFERENCES funcionario ( cod_funcionario ),
+    FOREIGN KEY ( cod_pessoa_ju )
+        REFERENCES cliente_jurica ( cod_pessoa_ju )
+)
+
+CREATE TABLE tipo (
+    cod_tipo NUMERIC PRIMARY KEY,
+    descricao VARCHAR2(40)
+)
+
+CREATE TABLE produto (
+    cod_produto NUMERIC PRIMARY KEY,
+    descricao   VARCHAR2(40),
+    cod_tipo    NUMERIC,
+    FOREIGN KEY (cod_tipo )
+    REFERENCES tipo ( cod_tipo )
+)
+
+CREATE TABLE item_pedido (
+    quantidade     NUMERIC(10),
+    valor_unitario NUMERIC(10),
+    valor_total    NUMERIC(10),
+    cod_pedido     NUMERIC,
+    cod_produto    NUMERIC,
+    FOREIGN KEY ( cod_pedido )
+        REFERENCES pedido ( cod_pedido ),
+    FOREIGN KEY ( cod_produto )
+        REFERENCES produto ( cod_produto )
+)
+
+CREATE SEQUENCE SQ_AULA_DDL; -- INCREMENT BY VALOR
+CREATE SEQUENCE SQ_AULA_DDL2;
